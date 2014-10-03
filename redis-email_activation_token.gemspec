@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = Redis::EmailActivationToken::VERSION
   spec.authors       = ["onigra"]
   spec.email         = ["3280467rec@gmail.com"]
-  spec.summary       = %q{Write a short summary. Required.}
-  spec.description   = %q{Write a longer description. Optional.}
+  spec.summary       = %q{Create email activation token by redis}
+  spec.description   = %q{}
   spec.homepage      = ""
   spec.license       = "MIT"
 
