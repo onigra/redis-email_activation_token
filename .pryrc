@@ -1,1 +1,1 @@
-require_relative 'lib/redis_email_activation_token'
+require_relative 'lib/redis-email_activation_token'
