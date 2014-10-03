@@ -1,0 +1,11 @@
+language: ruby
+rvm:
+  - 2.1.1
+  - 2.1.2
+  - 2.1.3
+services:
+  - redis-server
+script: bundle exec rspec
+notifications:
+  on_success: always
+  on_failure: always
