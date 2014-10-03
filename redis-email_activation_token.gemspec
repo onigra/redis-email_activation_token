@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["3280467rec@gmail.com"]
   spec.summary       = %q{Create email activation token by redis}
   spec.description   = %q{}
-  spec.homepage      = ""
+  spec.homepage      = "https://github.com/onigra/redis-email_activation_token"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")
