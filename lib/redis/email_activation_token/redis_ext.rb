@@ -6,7 +6,7 @@ class Redis
 
     def initialize(email, opts = {})
       @email = email
-      @expire = opts.delete(:expire) || 30
+      @expire = opts.delete(:expire) || 259200 # default 3 days
       @redis = opts.delete(:redis) || Redis.new(opts)
 
       freeze
