@@ -1,0 +1,1 @@
+require_relative 'lib/redis_email_activation_token'
