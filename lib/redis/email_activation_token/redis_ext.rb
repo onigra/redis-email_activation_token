@@ -2,43 +2,42 @@ require 'redis'
 
 class Redis
   class EmailActivationToken
-    attr_reader :expire
-
-    def initialize(email, opts = {})
-      @email = email
-      @expire = opts.delete(:expire) || 259200 # default 3 days
+    def initialize(opts = {})
       @redis = opts.delete(:redis) || Redis.new(opts)
-
-      freeze
     end
 
-    def create
-      if exists?
-        false
-      else
-        set_key
-        get
-      end
+    def generate(email, expire: 259200)
+      token = generate_token
+      set_key(email, token, expire)
+      token
     end
 
-    def exists?
-      @redis.exists @email
+    def get(token)
+      get_key token
     end
 
-    def get
-      @redis.get @email
+    def get_email(token)
+      @redis.hget(token, "email")
+    end
+
+    def get_created_at(token)
+      Time.parse @redis.hget(token, "created_at")
     end
 
     private
 
-    def set_key
-      @redis.set(@email, generate_token)
-      @redis.expire(@email, @expire)
+    def set_key(email, token, expire)
+      @redis.hset(token, "email", email)
+      @redis.hset(token, "created_at", Time.now)
+      @redis.expire(token, expire)
+    end
+
+    def get_key(token)
+      { token: token, email: get_email(token), created_at: get_created_at(token) } 
     end
 
     def generate_token
       SecureRandom.urlsafe_base64
     end
-
   end
 end

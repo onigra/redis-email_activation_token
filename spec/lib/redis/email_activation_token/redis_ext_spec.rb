@@ -2,7 +2,7 @@ require File.expand_path(File.join('../../../', 'spec_helper'), File.dirname(__F
 
 describe "redis" do
   before :all do
-    @redis = Redis.new :db => 15
+    @redis = Redis.new db: 15
   end
 
   before :each do
@@ -10,70 +10,57 @@ describe "redis" do
   end
 
   after :all do
+    @redis.flushdb
     @redis.quit
   end
 
   describe Redis::EmailActivationToken do
-    let(:obj) { Redis::EmailActivationToken.new(Faker::Internet.free_email, redis: @redis) }
+    let(:email) { Faker::Internet.free_email }
+    let(:obj) { described_class.new(redis: @redis) }
 
-    describe "#create" do
-      context "nothing" do
-        subject { obj.create }
 
+    describe "#generate" do
+      context "Success" do
         it "Return Activation Token" do
-          is_expected.to be_kind_of String
+          expect(obj.generate email).to be_kind_of String
         end
       end
 
-      context "exists" do
-        before { obj.create }
-        subject { obj.create }
-        it { is_expected.to be_falsy }
-      end
-    end
-
-    describe "#exists?" do
-      context "nothing" do
-        subject { obj.exists? }
-        it { is_expected.to be_falsy }
-      end
-
-      context "exists" do
-        before { obj.create }
-        subject { obj.exists? }
-        it { is_expected.to be_truthy }
+      context "Set expire time" do
+        it "Could set expiry" do
+          token = obj.generate(email, expire: 2)
+          sleep 3
+          expect(@redis.exists token).to be_falsy
+        end
       end
     end
 
     describe "#get" do
-      context "nothing" do
-        subject { obj.get }
-        it { is_expected.to be_falsy }
-      end
+      let(:token) { obj.generate email }
+      subject { obj.get token }
 
-      context "exists" do
-        before { obj.create }
-        subject { obj.get }
-
-        it "Return Activation Token" do
-          is_expected.to be_kind_of String
-        end
+      it "Return token infomation hash" do
+        expect(subject[:token]).to eq token
+        expect(subject[:email]).to eq email
+        expect(subject[:created_at]).to be_kind_of Time
       end
     end
 
-    describe "Expiry Time Set" do
-      let(:obj) { Redis::EmailActivationToken.new(Faker::Internet.free_email, redis: @redis, expire: 5) }
+    describe "#get_email" do
+      let(:token) { obj.generate email }
 
-      it "expite == 5" do
-        expect(obj.expire).to eq 5
-      end
-
-      it "Expire Check" do
-        obj.create
-        sleep 6
-        expect(obj.exists?).to be_falsy
+      it "Token is can get email" do
+        expect(obj.get_email token).to eq email
       end
     end
+
+    describe "#get_created_at" do
+      let(:token) { obj.generate email }
+
+      it "Token is can get created_at" do
+        expect(obj.get_created_at token).to be_kind_of Time
+      end
+    end
+
   end
-
 end
